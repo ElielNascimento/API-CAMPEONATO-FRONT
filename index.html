@@ -1,0 +1,154 @@
+<html ng-app="timeCampeonato" [size=9][/size] >
+<head>
+    <title> API-1 CAMPEONATO </title>
+    <link rel="stylesheet"
+          type="text/css"
+          href="lib/bootstrap/dist/css/bootstrap.css">
+    <style>
+        .jumbotron{
+            width: 800px;
+            text-align: center;
+            margin-left: auto;
+            margin-top: auto;
+            margin-right: auto;
+            max-width: 350;
+            display: inline-table;
+
+        }
+        .form-control {
+            margin-bottom: 5px;
+        }
+        .selecionado {
+            background-color: rgb(255, 251, 0);
+            border: black;        }
+        .negrito {
+            font-weight: bold;
+        }
+        .time {
+            background-color: rgb(219, 219, 221);
+        }
+            .teste{
+                background-color: black;
+
+            }
+    </style>
+    <script src="lib/angular/angular.js"></script>
+    <script>
+        angular.module("timeCampeonato", []);
+        angular.module("timeCampeonato").controller("timeCampeonatoCtrl", function ($scope, $http) {
+            
+            $scope.results = [];
+            $scope.times = [];
+            $scope.titulo = "API - C.F.C 2021";
+            $scope.campeonatos = [];
+            $scope.categorias = [{ campeonato: "Amador" }, { campeonato: "profissional" }];
+
+            var carregarTimes = function () {
+                $http.get("http://localhost:8090/time").then(function (data, status) {
+                    $scope.times = data.data;
+                });
+            }
+            var carregarCampeonatos = function () {
+                $http.get("http://localhost:8090/campeonato").then(function (data, status) {
+                    $scope.campeonatos = data.data;
+                });
+            };
+            $scope.adicionarCompeticao = async function (campeonato) {
+                await $http.post("http://localhost:8090/campeonato", campeonato)
+                delete $scope.campeonato;
+                carregarCampeonatos();
+               
+            };
+            $scope.deletarCompeticao = async function (campeonatos){
+                for(let i = 0; i < campeonatos.length; i++){
+                    if(campeonatos[i].selecionado){
+                        await $http.delete("http://localhost:8090/campeonato/" + campeonatos[i].id)
+                        carregarCampeonatos();
+
+                    }
+                }
+            }
+            $scope.adicionarTime = async function (time) {
+                await $http.post("http://localhost:8090/time",time)
+                delete $scope.time;
+                carregarTimes();
+            }
+
+            $scope.deletarTime = async function (times) {
+                for(let i = 0; i < times.length; i++){
+                    if(times[i].selecionado){
+                    await $http.delete("http://localhost:8090/time/" + times[i].id)
+                
+                    }
+                     carregarTimes();
+                }
+            }
+            carregarCampeonatos();
+            carregarTimes();
+        });
+    </script>
+</head>
+<body ng-controller="timeCampeonatoCtrl" class="teste">
+    <div class="jumbotron">
+        <h3 class="time"> {{titulo}} </h3>
+        <table class="table table-striped">
+            <tr>
+                <th></th>
+                <th>CLUBE</th>
+            </tr>
+            <tr ng-repeat="campeonato in campeonatos">
+                <td><input type="checkbox"ng-model="campeonato.selecionado" /></td>
+                <td>{{campeonato.competicao}}</td>
+                </input>
+            </tr>
+        </table>
+        <input class="form-control"ype="text"ng-model="campeonato.competicao"placeholder="Campeonato" />
+        </select>
+        <button class="btn btn-primary btn-block"ng-click="adicionarCompeticao(campeonato)" ng-disabled="!campeonato"> Adicionar</button>
+        <button class="btn btn-danger btn-block"ng-click="deletarCompeticao(campeonatos)"> Deletar</button>
+    </div>
+
+
+    <div class="jumbotron">
+        <table class="table table-striped">
+            <h4 class="time">TIMES</h4>
+            <th></th>
+            <th> NOME</th>
+            <th>ACOES</th>
+            <tr ng-repeat="time in times">
+                <td><input type="checkbox"
+                           ng-model="time.selecionado" /></td>
+                <td>{{time.nome}}</td>
+                <td> <button> </button></td>
+            </tr>
+        </table>
+        <input class="form-control"ype="text"ng-model="time.nome"placeholder="Time" />
+        <button class="btn btn-primary btn-block"ng-click="adicionarTime(time)"ng-disabled="!time"> Adicionar</button>
+        <button class="btn btn-danger btn-block"ng-click="deletarTime(times)"ng-disabled=""> Deletar</button>
+    </div>
+
+
+
+
+
+
+
+   <div class="jumbotron">   
+       <table class="table table-striped"> 
+        <tr>
+            <th class="time"> CAMPEONATOS/TIMES </th>
+        </tr>
+        <tr>
+            <tr>      
+                <td>{{results.nome}}</td>
+               <td>{{results.timeList}}
+               </td>
+            </tr>
+        </tr>
+       </table>
+       <button class="btn btn-primary btn-block" ng-click="postCompeticao()" ng-disabled= >SALVAR</button>
+       
+   </div>
+</body>
+
+</html>
